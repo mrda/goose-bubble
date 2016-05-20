@@ -26,24 +26,51 @@ A sample invocation is:
 import os
 import sys
 
+
+PROGNAME='goose-bubble'
+
+
+def hello():
+    print("Well, hello there!")
+
+
+def help():
+    help_str = 'Available commands are:\n'
+
+    # Find the longest verb in the menu item for formatting reasons
+    longest_key = 0
+    for f in menu_jump_table:
+        if len(f) > longest_key:
+            longest_key = len(f)
+    formatter = '%-' + str(longest_key) + 's'
+
+    for f in sorted(menu_jump_table):
+        temp = '  ' + formatter + ' - %s\n'
+        help_str += temp % (f, menu_jump_table[f][0])
+    print(help_str)
+
+
+def quit():
+    sys.exit(0)
+
+
+menu_jump_table = {
+    'hello': ("say hello", hello),
+    'help': ("display this text", help),
+    'quit': ("exit", quit),
+    'exit': ("exit", quit),
+}
+
+
 def main():
+    print("Welcome to %s. Type 'help' for instructions." % PROGNAME)
     while True:
         tokens = raw_input('>> ').split(' ')
 
-        if tokens[0] == 'hello':
-            print("Well, hello there!")
+        action = tokens[0]
 
-        elif tokens[0] == 'help':
-            progname = os.path.basename(__file__)
-            sys.exit('Usage: %s <command>, where <command> is one of:\n'
-                     '  hello     - say hello\n'
-                     '  help      - display this text\n'
-                     '  quit|exit - exit\n'
-                     % progname)
-
-        elif tokens[0] in ['quit', 'exit']:
-            sys.exit(0)
-
+        if action in menu_jump_table:
+            menu_jump_table[action][1]()
         else:
             print('Unknown command')
 
