@@ -27,10 +27,13 @@ import fnmatch
 import os
 import sys
 
-
-UNSORTED_DIR = ['unsorted/']
-
 YEAR_DIRS = [ str(1970+i) for i in range(75) ]
+
+INCOMING = None
+UNSORTED = None
+SORTED = None
+
+DEBUG = False
 
 
 def move_files(directories, exclude_dirs, exts, files_only, func):
@@ -70,6 +73,36 @@ def _move_file(filename):
         print("Move file '%s' to unknown" % filename)
     else:
         print("Move file '%s' to directory '%s'" % (filename, d))
+
+
+def ensure_dir(path):
+    if DEBUG:
+        print "Asked to make \"" + path + "\""
+    if not os.path.exists(path):
+        os.makedirs(path)
+
+
+def ensure_gb_dirs():
+    try:
+        root_dir = os.environ.get('GB_MEDIA')
+        if root_dir is None:
+            root_dir = os.environ['HOME'] + os.sep + 'media'
+        # Fix ~'s
+        root_dir = os.path.expanduser(root_dir)
+
+        INCOMING = root_dir + os.sep + 'incoming'
+        UNSORTED = root_dir + os.sep + 'unsorted'
+        SORTED = root_dir + os.sep + 'sorted'
+
+        ensure_dir(root_dir)
+        ensure_dir(INCOMING)
+        ensure_dir(UNSORTED)
+        ensure_dir(SORTED)
+        return True
+
+    except Exception as e:
+        print "Unexpected error: ", sys.exc_info()[0]
+        return False
 
 
 if __name__ == '__main__':
