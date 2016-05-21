@@ -26,15 +26,17 @@ A sample invocation is:
 import os
 import sys
 
+import dir
+
 
 PROGNAME='goose-bubble'
 
 
-def hello():
+def menu_hello():
     print("Well, hello there!")
 
 
-def help():
+def menu_help():
     help_str = 'Available commands are:\n'
 
     # Find the longest verb in the menu item for formatting reasons
@@ -50,30 +52,41 @@ def help():
     print(help_str)
 
 
-def quit():
+def menu_quit():
     sys.exit(0)
 
 
+def menu_mkdirs():
+    if dir.ensure_gb_dirs():
+        print("Successfully made required dirs")
+
+
 menu_jump_table = {
-    'hello': ("say hello", hello),
-    'help': ("display this text", help),
-    'quit': ("exit", quit),
-    'exit': ("exit", quit),
+    'hello': ("say hello", menu_hello),
+    'help': ("display this text", menu_help),
+    'quit': ("exit", menu_quit),
+    'exit': ("exit", menu_quit),
+    'makedirs': ("make required directories", menu_mkdirs),
 }
 
 
 def main():
     print("Welcome to %s. Type 'help' for instructions." % PROGNAME)
-    while True:
-        tokens = raw_input('>> ').split(' ')
+    try:
+        while True:
+            tokens = raw_input('>> ').split(' ')
 
-        action = tokens[0]
+            action = tokens[0]
 
-        if action in menu_jump_table:
-            menu_jump_table[action][1]()
-        else:
-            print('Unknown command')
+            if action in menu_jump_table:
+                menu_jump_table[action][1]()
+            else:
+                print('Unknown command')
 
+    except EOFError:
+        # Do nothing, as a ^D is pretty standard way to exit
+        print("\n")
+        pass
 
 if __name__ == '__main__':
     main()
