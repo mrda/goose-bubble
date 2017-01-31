@@ -27,16 +27,32 @@ import fnmatch
 import os
 import sys
 
-YEAR_DIRS = [ str(1970+i) for i in range(75) ]
+MEDIA_TYPES = ['jpg', 'png', 'cr2', 'mov']
 
 INCOMING = None
-UNSORTED = None
 SORTED = None
+UNSORTED = None
+BACKUP = None
+DUPLICATES = None
 
 DEBUG = False
 
 
-def move_files(directories, exclude_dirs, exts, files_only, func):
+def import(source_dir, dest_dir, cannot_sort_dir, file_types):
+    move_files(source_dir, None, dest_dir, cannot_sort_dir, file_types,
+               False)
+
+
+def move_files(directories, exclude_dirs, dest_dir, cannot_sort_dir, exts,
+               files_only):
+    """Sort and move files from one place to another
+       directories - 
+       exclude_dirs -
+       dest_dir -
+       cannot_sort_dir -
+       exts -
+       files_only -
+    """
     matches = []
     extensions = []
     for ex in exts:
@@ -64,15 +80,19 @@ def move_files(directories, exclude_dirs, exts, files_only, func):
                                 result = filename
                             else:
                                 result = (root, filename)
-                            func(directory + filename)
+                            move_single_file(directory + filename, dest_dir,
+                                 cannot_sort_dir)
 
 
-def _move_file(filename):
+def move_single_file(filename, dest_dir, cannot_sort_dir):
     d = media.get_date_for_image_file(filename)
     if d is None or d is False:
         print("Move file '%s' to unknown" % filename)
+        # TODO(mrda): Move file to cannot_sort_dir directory
     else:
         print("Move file '%s' to directory '%s'" % (filename, d))
+        # TODO(mrda): Move file to dest_dir directory
+        # Well, actually dest_dir/year so ensure_dir(dest_dir + d['year'])
 
 
 def ensure_dir(path):
@@ -93,11 +113,15 @@ def ensure_gb_dirs():
         INCOMING = root_dir + os.sep + 'incoming'
         UNSORTED = root_dir + os.sep + 'unsorted'
         SORTED = root_dir + os.sep + 'sorted'
+        BACKUP = root_dir + os.sep + 'backup'
+        DUPLICATES = root_dir + os.sep + 'duplicates'
 
         ensure_dir(root_dir)
         ensure_dir(INCOMING)
         ensure_dir(UNSORTED)
         ensure_dir(SORTED)
+        ensure_dir(BACKUP)
+        ensure_dir(DUPLICATES)
         return True
 
     except Exception as e:

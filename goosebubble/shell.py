@@ -61,12 +61,32 @@ def menu_mkdirs():
         print("Successfully made required dirs")
 
 
+def menu_import():
+
+    # TODO(mrda): Need to do a bunch of things here:
+    #  before we make a move, need to log the action we're about to take.
+    #  Should this be in unix commandline format for replay?
+    #  Before we move any file, we should take a backup
+    #  We should also check to see if the file is there already
+    #    And if so, make a binary diff, if the same, don't keep.  If different
+    #    add to a duplicates directory
+
+    # Make sure we have the right directories first
+    dir.ensure_gb_dirs()
+
+    dir.import(dir.INCOMING,
+               dir.SORTED,
+               dir.UNSORTED,
+               dir.MEDIA_TYPES)
+
+
 menu_jump_table = {
     'hello': ("say hello", menu_hello),
     'help': ("display this text", menu_help),
     'quit': ("exit", menu_quit),
     'exit': ("exit", menu_quit),
     'makedirs': ("make required directories", menu_mkdirs),
+    'import': ("import files from the unsorted directory", menu_import),
 }
 
 
