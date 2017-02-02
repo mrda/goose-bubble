@@ -25,6 +25,8 @@ import sys
 import os
 
 SPLIT_STR = ':| '
+NO_YEAR = 'no-year'
+NO_DATE = 'no-date'
 
 
 def get_date_for_image(filename, only_year=False):
@@ -73,9 +75,9 @@ def get_date_for_image(filename, only_year=False):
         pass
 
     if only_year:
-        return "no-year"
+        return NO_YEAR
     else:
-        return "no-date"
+        return NO_DATE
 
 
 def get_year_for_image(filename):
