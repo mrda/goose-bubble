@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# hash.py - hashing utils
+# hashutils.py - hashing utils
 #
 # Copyright (C) 2017 Michael Davies <michael@the-davies.net>
 #

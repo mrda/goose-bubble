@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# copy.py - copying utils
+# copyutils.py - copying utils
 #
 # Copyright (C) 2017 Michael Davies <michael@the-davies.net>
 #
@@ -21,7 +21,7 @@
 #
 
 import enum
-import hash
+import hashutils
 import shutil
 import sys
 import os
@@ -64,7 +64,7 @@ def copy_file(filename, sourcedir, destdir, debug=False):
     destfullpath = os.path.join(destdir, filename)
     if os.path.exists(destfullpath):
         # Are the files the same?
-        if hash.is_identical(sourcefullpath, destfullpath):
+        if hashutils.is_identical(sourcefullpath, destfullpath):
             return COPY_STATUS(COPY_STATUS.DUPLICATE)
         else:
             # Not duplicate, so fail for now
