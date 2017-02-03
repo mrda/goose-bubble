@@ -1,8 +1,7 @@
-#!/usr/bin/env python
 #
-# dirutils.py - directory operations for goose-bubble
+# consts - simple goose-bubble constants
 #
-# Copyright (C) 2016 Michael Davies <michael@the-davies.net>
+# Copyright (C) 2017 Michael Davies <michael@the-davies.net>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -20,13 +19,6 @@
 # 02111-1307, USA.
 #
 
-import os
-
-
-def ensure_dir(path):
-    if not os.path.exists(path):
-        os.makedirs(path)
-
-
-if __name__ == '__main__':
-    print("Yow!")
+SUCCESS = 1
+FAIL = 2
+DUPLICATE = 3

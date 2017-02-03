@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# dirutils.py - directory operations for goose-bubble
+# stats.py - keep some stats
 #
 # Copyright (C) 2016 Michael Davies <michael@the-davies.net>
 #
@@ -20,13 +20,22 @@
 # 02111-1307, USA.
 #
 
-import os
 
+class Stats():
 
-def ensure_dir(path):
-    if not os.path.exists(path):
-        os.makedirs(path)
+    def __init__(self):
+        self.total_files = 0
+        self.success = 0
+        self.unsorted = 0
+        self.copy_fail = 0
+        self.duplicate = 0
+        self.unknown_fail = 0
 
-
-if __name__ == '__main__':
-    print("Yow!")
+    def format_stats(self):
+        s = "Total files processed: %d\n" % self.total_files
+        s += "Successfully sorted files: %d\n" % self.success
+        s += "Files left unsorted: %d\n" % self.unsorted
+        s += "Duplicate files found: %d\n" % self.duplicate
+        s += "Files where copy failed: %d\n" % self.copy_fail
+        s += "Unknown failures: %d\n" % self.unknown_fail
+        return s

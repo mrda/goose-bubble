@@ -22,28 +22,10 @@
 
 import datetime
 
-
-class LOGFILE():
-    SUCCESS = 1
-    FAIL = 2
-    DUPLICATE = 3
-
-    def __init__(self, Type):
-        self.value = Type
-
-    def __str__(self):
-        if self.value == COPY_STATUS.SUCCEES:
-            return 'SUCCESS'
-        if self.value == COPY_STATUS.FAIL:
-            return 'FAIL'
-        if self.value == COPY_STATUS.DUPLICATE:
-            return 'DUPLICATE'
-
-    def __eq__(self, y):
-        return self.value == y.value
+import consts
 
 
-class GbLog():
+class SimpleLogger():
 
     def __init__(self):
         self._success_fd = None
@@ -53,24 +35,23 @@ class GbLog():
     def open_logs(self):
         datestr = datetime.datetime.today().strftime('%Y%m%d-%H%M%S')
         if self._success_fd is None:
-            self._success_fd = open("gb-success-log-%s" % datestr, 'a+')
+            self._success_fd = open("gb-success-%s.log" % datestr, 'a+')
 
         if self._fail_fd is None:
-            self._fail_fd = open("gb-fail-log-%s" % datestr, 'a+')
+            self._fail_fd = open("gb-fail-%s.log" % datestr, 'a+')
 
         if self._duplicate_fd is None:
-            self._duplicate_fd = open("gb-duplicate-log-%s" % datestr, 'a+')
+            self._duplicate_fd = open("gb-duplicate-%s.log" % datestr, 'a+')
 
     def append(self, logfile, text):
-        if logfile == LOGFILE.SUCCESS:
-            self._success_fd.write(text)
-        elif logfile == LOGFILE.FAIL:
-            self._fail_fd.write(text)
-        elif logfile == LOGFILE.DUPLICATE:
-            self._duplicate_fd.write(text)
+        if logfile == consts.SUCCESS:
+            self._success_fd.write(text + "\n")
+        elif logfile == consts.FAIL:
+            self._fail_fd.write(text + "\n")
+        elif logfile == consts.DUPLICATE:
+            self._duplicate_fd.write(text + "\n")
 
     def close_logs(self):
         self._success_fd.close()
         self._fail_fd.close()
         self._duplicate_fd.close()
-

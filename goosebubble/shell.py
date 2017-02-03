@@ -29,7 +29,7 @@ import sys
 import dir
 
 
-PROGNAME='goose-bubble'
+PROGNAME = 'goose-bubble'
 
 
 def menu_hello():

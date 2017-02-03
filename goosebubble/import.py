@@ -20,12 +20,15 @@
 # 02111-1307, USA.
 #
 
-import copyutils
-import dirutils
-import gblogging
-import media
 import sys
 import os
+
+import consts
+import copyutils
+import dirutils
+import simplelogging
+import stats
+import media
 
 
 DEBUG = True
@@ -35,18 +38,23 @@ SORTED = None
 UNSORTED = None
 
 
-def process_file(directory, filename):
-    """Return success or failure"""
+s = stats.Stats()
 
-    print("Calling process_file for dir=%s, file=%s" % (directory, filename))
+
+def process_file(log, directory, filename):
+    """Return success or failure"""
+    s.total_files += 1
+
     # Find out if they have meta data, find out the year
     #   from when they were created,
     # If no meta data is present, copy them to UNSORTED
-    fullpath = os.path.join(directory, filename)
-    print "fullpath=%s" % fullpath
-    dest_dir = media.get_year_for_image(fullpath)
-    print "destdir=%s" % dest_dir
-    if (dest_dir == media.NO_YEAR):
+    fullname = os.path.join(directory, filename)
+    dest_dir = media.get_year_for_image(fullname)
+    if dest_dir is None:
+        # File errored in some way
+        s.unknown_fail += 1
+        return
+    elif (dest_dir == media.NO_YEAR):
         dest_dir = UNSORTED
     else:
         dest_dir = os.path.join(SORTED, dest_dir)
@@ -55,43 +63,56 @@ def process_file(directory, filename):
     dirutils.ensure_dir(dest_dir)
 
     # Copy them from INCOMING to SORTED/UNSORTED
-    print("We want to copy %s to %s" % (fullpath, dest_dir))
     copy_result = copyutils.copy_file(filename, directory, dest_dir)
 
     # Log what we did with them
     # and make sure we close the log files afterwards
-    if copy_result == copyutils.COPY_STATUS.SUCCEED:
-        gblogging.append(gblogging.LOGFILE.SUCCESS, "SUCCESS %s to %s" %
-                         (fullname, destdir))
-    elif copy_result == copyutils.COPY_STATUS.FAIL:
-        gblogging.append(gblogging.LOGFILE.FAIL, "FAILURE %s to %s" %
-                         (fullname, destdir))
-    elif copy_result == copyutils.COPY_STATUS.DUPLICATE:
-        gblogging.append(gblogging.LOGFILE.DUPLICATE, "DUPLICATE %s to %s" %
-                         (fullname, destdir))
+    if copy_result == consts.SUCCESS:
+        log.append(consts.SUCCESS, "SUCCESS %s to %s" %
+                   (fullname, dest_dir))
+        if dest_dir == UNSORTED:
+            s.unsorted += 1
+        else:
+            s.success += 1
+
+    elif copy_result == consts.FAIL:
+        log.append(consts.FAIL, "FAILURE %s to %s" %
+                   (fullname, dest_dir))
+        s.copy_fail += 1
+
+    elif copy_result == consts.DUPLICATE:
+        log.append(consts.DUPLICATE, "DUPLICATE %s to %s" %
+                   (fullname, dest_dir))
+        s.duplicate += 1
     else:
-        print("*** ERROR processing %s" % fullpath)
+        print("*** ERROR processing %s" % fullname)
+        s.unknown_fail += 1
 
 
 def import_files(directory):
-    print("Importing from directory %s" % directory)
+    if DEBUG:
+        print("Importing from directory %s" % directory)
 
-    gb = gblogging.GbLog()
-    gb.open_logs()
+    log = simplelogging.SimpleLogger()
+    log.open_logs()
 
     try:
 
         # Iterate over all files in directories under INCOMING
         for subdir, dirs, files in os.walk(INCOMING):
-            print("Entering subdirectory %s" % subdir)
+            if DEBUG:
+                print("Entering subdirectory %s" % subdir)
             for f in files:
                 try:
-                    ret = process_file(gb, subdir, f)
+                    process_file(log, subdir, f)
                 except:
-                    print("Unexpected error processing %s: %s" %
-                          (f, sys.exc_info()[0]))
+                    if DEBUG:
+                        raise
+                    else:
+                        print("Unexpected error processing %s: %s" %
+                              (f, sys.exc_info()[0]))
     finally:
-        gb.close_logs()
+        log.close_logs()
 
 
 if __name__ == '__main__':
@@ -118,3 +139,5 @@ if __name__ == '__main__':
     dirutils.ensure_dir(SORTED)
 
     import_files(root_dir)
+
+    print(s.format_stats())

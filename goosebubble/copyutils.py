@@ -21,30 +21,12 @@
 #
 
 import enum
-import hashutils
 import shutil
 import sys
 import os
 
-
-class COPY_STATUS():
-    SUCCEED = 1
-    FAIL = 2
-    DUPLICATE = 3
-
-    def __init__(self, Type):
-        self.value = Type
-
-    def __str__(self):
-        if self.value == COPY_STATUS.SUCCEED:
-            return 'SUCCEED'
-        if self.value == COPY_STATUS.FAIL:
-            return 'FAIL'
-        if self.value == COPY_STATUS.DUPLICATE:
-            return 'DUPLICATE'
-
-    def __eq__(self, y):
-        return self.value == y.value
+import consts
+import hashutils
 
 
 def generate_unique_filename(filename, destdir):
@@ -65,12 +47,12 @@ def copy_file(filename, sourcedir, destdir, debug=False):
     if os.path.exists(destfullpath):
         # Are the files the same?
         if hashutils.is_identical(sourcefullpath, destfullpath):
-            return COPY_STATUS(COPY_STATUS.DUPLICATE)
+            return consts.DUPLICATE
         else:
             # Not duplicate, so fail for now
             # TODO(mrda): copy in the file with a different name if the
             # file contents isn't the same
-            return COPY_STATUS(COPY_STATUS.FAIL)
+            return consts.FAIL
     else:
         # Doesn't exist, so copy
         try:
@@ -80,8 +62,8 @@ def copy_file(filename, sourcedir, destdir, debug=False):
         except IOError, e:
             if debug:
                 print "Unable to copy file. %s" % e
-            return COPY_STATUS(COPY_STATUS.FAIL)
-    return COPY_STATUS(COPY_STATUS.SUCCEED)
+            return consts.FAIL
+    return consts.SUCCESS
 
 
 if __name__ == '__main__':

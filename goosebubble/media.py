@@ -31,7 +31,14 @@ NO_DATE = 'no-date'
 
 def get_date_for_image(filename, only_year=False):
     """Return the date for an image"""
-    fd = open(filename, 'rb')
+    fd = None
+    try:
+        fd = open(filename, 'rb')
+    except IOError as e:
+        print("** Problem accessing file '%s', error is '%s'" %
+              (filename, str(e)))
+        return None
+
     try:
         tags = exifread.process_file(fd)
     except UnicodeEncodeError:
@@ -40,7 +47,7 @@ def get_date_for_image(filename, only_year=False):
 
     if tags is None:
         print("** File '%s' has no exif data") % filename
-        return False
+        return None
 
     fd.close()
 
